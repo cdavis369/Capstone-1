@@ -5,80 +5,80 @@
   <b>Race: {{race_details['name']}}</b>
 </div>
 <div class="row justify-content-md-center">
-  <table class="table chosen-race-info-table">
-    <thead>
-      <tr>
-        <th scope="col"></th>
-        <th scope="col"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <th scope="row">Speed</th>
-        <td>{{race_details['speed']}}</td>
-      </tr>
-      <tr>
-        <th scope="row">Age</th>
-        <td>{{race_details['age']}}</td>
-      </tr>
-      <tr>
-        <th scope="row">Alignment</th>
-        <td>{{race_details['alignment']}}</td>
-      </tr>
-      <tr>
-        <th scope="row">Size</th>
-        <td>{{race_details['size']}}</td>
-      </tr>
-      <tr>
-        <th scope="row">Languages</th>
-        <td>
-          {% for language in race_details['languages']%}
-          {% if loop.index == race_details['languages']|length %}
-          {{language['name']}}
-          {% else %}
-          {{language['name']}}, 
-          {% endif %}
-          {% endfor %}
-        </td>
-      </tr>
-      <tr>
-      <tr>
-        <th scope="row">Traits</th>
-        <td>
-          {% for trait in race_details['traits'] %}
-          {% if loop.index == race_details['traits']|length %}
-          {{trait['name']}}
-          {% else %}
-          {{trait['name']}}, 
-          {% endif %}
-          {% endfor %}
-        </td>
-      </tr>
-      <tr>
-        <th scope="row">Subraces</th>
-        <td>
-          {% if race_details['subraces']|length > 0 %}
-          {% for subrace in race_details['subraces'] %}
-          {% if loop.index == race_details['subraces']|length %}
-          {{ subrace['name'] }}
-          {% else %}
-          {{ subrace['name'] }}, 
-          {% endif %}
-          {% endfor %}
-          {% else %}
-          <p>None</p>
-          {% endif %}
-          
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="col col-sm-6 col-md-6 col-lg-6 forefront">
+    <table class="table chosen-race-info-table">
+      <tbody>
+        <tr>
+          <th scope="row">Race</th>
+          <td>{{race_details['name']}}</td>
+        </tr>
+        <tr>
+          <th scope="row">Speed</th>
+          <td>{{race_details['speed']}}</td>
+        </tr>
+        <tr>
+          <th scope="row">Age</th>
+          <td>{{race_details['age']}}</td>
+        </tr>
+        <tr>
+          <th scope="row">Alignment</th>
+          <td>{{race_details['alignment']}}</td>
+        </tr>
+        <tr>
+          <th scope="row">Size</th>
+          <td>{{race_details['size']}}</td>
+        </tr>
+        <tr>
+          <th scope="row">Languages</th>
+          <td>
+            {% for language in race_details['languages']%}
+            {% if loop.index == race_details['languages']|length %}
+            {{language['name']}}
+            {% else %}
+            {{language['name']}}, 
+            {% endif %}
+            {% endfor %}
+          </td>
+        </tr>
+        <tr>
+        <tr>
+          <th scope="row">Traits</th>
+          <td>
+            {% for trait in race_details['traits'] %}
+            {% if loop.index == race_details['traits']|length %}
+            {{trait['name']}}
+            {% else %}
+            {{trait['name']}}, 
+            {% endif %}
+            {% endfor %}
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">Subraces</th>
+          <td>
+            {% if race_details['subraces']|length > 0 %}
+            {% for subrace in race_details['subraces'] %}
+            {% if loop.index == race_details['subraces']|length %}
+            {{ subrace['name'] }}
+            {% else %}
+            {{ subrace['name'] }}, 
+            {% endif %}
+            {% endfor %}
+            {% else %}
+            <p>None</p>
+            {% endif %}
+            
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="row justify-content-md-center forefront">
+      <a href="/new-character-race" class="btn btn-secondary btn-lg col-sm-2 col-md-2 col-lg-2">back</a>
+      <a href="/new-character-class" class="btn btn-success btn-lg col-sm-10 col-md-10 col-lg-10">next</a>
+    </div>
+  </div>
+
 </div>
-{#
-{% for d in race_details %}
-<p>{{ d }} : {{ race_details[d] }}</p>
-{% endfor %}
-#}
-<a href="/new-character-race" class="btn btn-secondary btn-lg">back</a>
-<a href="/new-character-class" class="btn btn-success btn-lg">next</a>
+
+
 {% endblock %}

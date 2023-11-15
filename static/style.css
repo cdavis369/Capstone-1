@@ -22,6 +22,14 @@
   margin: 0 5rem 0 5rem;
 }
 
+.top-col {
+  margin-top: 50px;
+}
+
+.buttons {
+  margin-top: 50px;
+}
+
 .inventory-choice {
   cursor: pointer;
 }

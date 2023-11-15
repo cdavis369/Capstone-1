@@ -2,21 +2,22 @@
 
 {% block content %}
 <div class="row justify-content-md-center">
-  <form method="POST" id="new_character_form">
-    {{ form.hidden_tag() }}
-  
-    {% for field in form if field.widget.input_type != 'hidden' %}
-      {% for error in field.errors %}
-        <span class="text-danger">{{ error }}</span>
+  <div class="col col-sm-6 col-md-6 col-lg-6 forefront float-center top-col">
+    <form method="POST" id="new_character_form">
+      {{ form.hidden_tag() }}
+    
+      {% for field in form if field.widget.input_type != 'hidden' %}
+        {% for error in field.errors %}
+          <span class="text-danger">{{ error }}</span>
+        {% endfor %}
+        <label>{{ field.label.text }}</label>
+        {{ field(placeholder=field.label.text, class="form-control") }}
       {% endfor %}
-      <label>{{ field.label.text }}</label>
-      {{ field(placeholder=field.label.text, class="form-control") }}
-    {% endfor %}
-    <div class="row justify-content-md-center">
-      <a href="/new-character" class="btn btn-secondary btn-lg">back</a>
-      <button class="btn btn-success btn-lg col">next</button>
-    </div>
-
-  </form>
+      <div class="row justify-content-md-center buttons">
+        <a href="/new-character" class="btn btn-secondary btn-lg">back</a>
+        <button class="btn btn-success btn-lg col">next</button>
+      </div>
+    </form>
+  </div>
 </div>
 {% endblock %}
