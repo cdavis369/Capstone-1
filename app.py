@@ -9,7 +9,7 @@ import requests
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///dnd'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://mejhvcte:jr0_lMo695InRuW6nVxFgfyCTnu6HBDG@mahmud.db.elephantsql.com/mejhvcte'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['SECRET_KEY'] = "MYFIRSTCAPSTONEPROJECT"
