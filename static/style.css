@@ -1,0 +1,44 @@
+.abilities-roll {
+  width: 50px;
+  height: 50px;
+}
+
+.base-body {
+  background-image: url("../static/img/D&D_background.avif");
+}
+
+.forefront {
+  background-color: rgba(255, 255, 255, 0.75);
+}
+
+#character-diplay-form {
+  padding-top: 25px;
+}
+
+#active-abilities-roll {
+  width: 50px;
+  height: 50px;
+  color: red;
+  margin: 0 5rem 0 5rem;
+}
+
+.inventory-choice {
+  cursor: pointer;
+}
+
+#random-gold-roll {
+  cursor: pointer;
+  color: blue;
+}
+
+#starting-gold {
+  display: none;
+}
+
+#starting-equipment {
+  display: none;
+}
+
+#navbar-register {
+  padding-right: 10px;
+}

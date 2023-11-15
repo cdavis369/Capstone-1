@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="row align-middle justify-content-md-center">
+  <div class="col col-lg-6 col-md-6 col-sm-6 d-flex justify-content-center">
+    <form id="character-diplay-form">
+      {% for character in char_data %}
+      <button>
+        {{ character['char_name'] }}
+      </button>
+      {% endfor %}
+      <button>
+        New
+      </button>
+    
+    </form>
+  </div>
+</div>
+
+
+<!-- <form method="POST" id="user_form">
+  {{ form.hidden_tag() }}
+
+  {% for field in form if field.widget.input_type != 'hidden' %}
+    {% for error in field.errors %}
+      <span class="text-danger">{{ error }}</span>
+    {% endfor %}
+    {{ field(placeholder=field.label.text, class="form-control") }}
+  {% endfor %}
+  <button class="btn btn-primary btn-block btn-lg">search</button>
+</form>
+
+{% if result %} 
+<p>{{result['name']}}</p>
+<ul>
+  {% if result['desc']|length != 0 %}
+  <li>{{result['desc'][0]}}
+  {% endif %}
+  <li>{{result['equipment_category']['name']}} - {{result['gear_category']['name']}}</li>
+  <li>{{result['cost']['quantity']}} {{result['cost']['unit']}}</li>
+  {% if result['contents']|length != 0 %}
+  <li>Contents: {{result['contents']}}</li>
+  {% endif %}
+  {% if result['peroperties']|length != 0 %}
+  <li>Properties {{result['peroperties']}}</li>
+  {% endif %}
+{% endif %} -->
+
+
+{% endblock %}

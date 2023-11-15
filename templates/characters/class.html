@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-md-center">
+    <div class="col col-lg-6 col-md-6 col-sm-6 justify-content-center">
+        <table class="table forefront">
+            <tbody>
+                <tr>
+                    <th scope="row">Class</th>
+                    <td>{{ class_details['name'] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Hit Die</th>
+                    <td>{{ class_details['hit_die'] }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">Proficiencies</th>
+                    <td>
+                        {% for prof in class_details['proficiencies'] %}
+                        {% if 'Saving' not in prof['name'] %}
+                        - {{ prof['name'] }}  
+                        {% endif %}
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Saving Throws</th>
+                    <td>
+                        {% for st in class_details['saving_throws'] %}
+                        - {{ st['name'] }} 
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Starting Equipment</th>
+                    <td>
+                        {% for equip in class_details['starting_equipment'] %}
+                        - {{ equip['equipment']['name'] }}, {{ equip['quantity']}} 
+                        {% endfor %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div class="row justify-content-md-center">
+    <div class="col col-lg-6 col-md-6 col-sm-6 justify-content-center">
+        <form class="forefront" method="POST">
+            <h3>Proficiency Choices: </h3>
+            {% for prof in class_details['proficiency_choices'] %}
+            {% set prof_loop = loop %}
+            <div class="row justify-content-md-center">
+                <div class="col justify-content-center">
+                    <p>{{ prof['desc'] }}</p>
+                    {% for i in range(prof['choose']) %}
+                    <div class="row justify-content-md-center">
+                        <select name="{{prof_loop.index}}-{{i}}" class="form-select">
+                            <option selected>-Choose-</option>
+                            {% for option in prof['from']['options'] %}
+                            <option value="{{option['item']['index']}}">{{option['item']['name']}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endfor %}  
+                </div>
+            </div>
+            {% endfor %}
+            <div class="row justify-content-center">
+                <a href="/new-character-class" class="btn btn-secondary btn-lg col col-lg-2">back</a>
+                <button type="submit" class="btn btn-success btn-lg col col-lg-2">next</button> 
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
