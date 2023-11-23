@@ -9,7 +9,7 @@ import requests
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://eyflhgtm:thpH-f-6SbdXIZ2IhBeqpWKGBujvYFbH@bubble.db.elephantsql.com/eyflhgtm'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://eyflhgtm:thpH-f-6SbdXIZ2IhBeqpWKGBujvYFbH@bubble.db.elephantsql.com/eyflhgtm'
 #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///dnd'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
