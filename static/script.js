@@ -2,15 +2,15 @@
 function abilitiesRoll(ability) {
   $formInput = $(`#result-${ability}`);
   const rolls = [];
-  console.log(ability)
+  // console.log(ability)
   while (rolls.length < 4) {
     roll = Math.floor(Math.random() * 6) + 1;
-    console.log("ROLL: " + roll);
+    // console.log("ROLL: " + roll);
     rolls.push(roll);
   }
-  console.log(rolls);
+  // console.log(rolls);
   rolls.sort().reverse();
-  console.log(rolls);
+  // console.log(rolls);
   let total = 0;
   
   for (let i = 0; i < 4; i++) {
@@ -22,7 +22,7 @@ function abilitiesRoll(ability) {
       total += rolls[i];
     
   }
-  console.log(total);
+  // console.log(total);
   
   $formInput.val(total);
 }
@@ -70,7 +70,7 @@ async function submitAbilities() {
       location.href = "/characters/new/description";
     }
     catch (error) {
-      console.log(error);
+      // console.log(error);
       alert(error);
     }
   }
@@ -98,7 +98,7 @@ async function getAlignmentDetails(index) {
     $('#alignment-desc').text(desc);
   }
   catch(error) {
-    console.log(error);
+    // console.log(error);
     alert(error);
   }
 
@@ -156,6 +156,8 @@ async function submitCharacterDetails() {
   let errorMessage = "";
   let langError = false;
   const formData = new FormData();
+  
+  details['faith'] = $('#char-faith').val();
 
   $('.languages').each(function() {
     if ($(this).val() !== "-Choose a language-") {
@@ -165,7 +167,7 @@ async function submitCharacterDetails() {
     else 
       langError = true;
   });
-  console.log(details['languages']);
+  // console.log(details['languages']);
   $lifestyle = $('#char-lifestyle').val();
 
   if ($lifestyle === "-Choose lifestyle-")
@@ -207,7 +209,7 @@ async function submitCharacterDetails() {
         data: formData,
         headers: {'Content-Type': 'application/json'}
       });
-      console.log(response.data);
+      // console.log(response.data);
       location.href = "/characters/new/inventory"
     }
     catch (error) {
@@ -235,12 +237,38 @@ async function addGoldToInventory(amount) {
       data: formData,
       headers: {'Content-Type': 'application/json'}
     });
-    
-    
   }
   catch (error) {
     alert(error);
   }
+  location.href = "/";
+}
+
+async function addEquipmentToInventory(equipment) {
+  const formData = new FormData();
+  const inventory = [];
+  inventory['inventory_type'] = 'equipment';
+  inventory['equipment'] = [];
+  equipment.each(function() { 
+    inventory['equipment'].push(this.value)
+  });
+  // console.log(inventory['equipment'])
+  Object.entries(inventory).forEach(function([key, value]) {
+    formData.append(key, value);
+  });
+
+  try {
+    response = await axios({
+      method: "POST",
+      url: "/characters/new/inventory",
+      data: formData,
+      headers: {'Content-Type': 'application/json'}
+    });
+  }
+  catch (error) {
+    alert(error);
+  }
+  location.href = "/";
 }
 
 $('.add-gold').click(function() {
@@ -253,8 +281,28 @@ $('.add-gold').click(function() {
   }
 );
 
+$('.add-equipment').click(function() {
+  $equipment = $('.starting-equipment-option');
+  var error = false;
+  $equipment.each(function() {
+    if (this.value == '-Choose-')
+      error = true;
+  });
+  if (error == true)
+  alert("All equipment must be chosen.");
+  else
+    addEquipmentToInventory($equipment);
+});
 
-$('#add-rolls').click(addAbilitiesRolls);
+$('#add-rolls').click(function(evt) {
+  evt.preventDefault();
+  addAbilitiesRolls();
+});
+
+$('#roll-all-abilities').click(function(evt){
+  evt.preventDefault();
+  rollAllAbilities();
+});
 
 $('.abilities-roll').click((evt) => {
   ability = evt.target.id.slice(5,)
@@ -292,7 +340,7 @@ $('#btn-submit-details').click(function (evt) {
 
 $('.inventory-choice').click(function () {
   choice = this.id.slice(0,-7);
-  console.log(choice);
+  // console.log(choice);
 });
 
 $('#starting-gold-option').change(function() {
@@ -302,7 +350,6 @@ $('#starting-gold-option').change(function() {
 
 $('#random-gold-roll').click(function() {
   roll = Math.floor(Math.random() * 16) + 5;
-  console.log(roll);
   $('#starting-gold-option').val(roll).change()
   $('#starting-gold-result').text(roll*10+" gp");
 
@@ -311,34 +358,9 @@ $('#random-gold-roll').click(function() {
 $('#gold-option').click(function() {
   $('#starting-gold').show()
   $('#starting-equipment').hide()
-  console.log(this.id)
 });
 
 $('#equipment-option').click(function() {
   $('#starting-equipment').show()
   $('#starting-gold').hide()
-  console.log(this.id)
 });
-
-// $('.form-select').change(function() {
-//   let seen = [];
-//   $('.form-select').each(function() {
-    // console.log(this.id)
-    // const chosen = $(this).val();
-    // console.log(chosen[0]);
-    // if (chosen[0] !== '-' && !seen.includes(chosen)) {
-    //   console.log("USER CHOSE A VALID CHOICE.");
-    //   $(this).find(`[value='${chosen}']`).remove();
-    //   seen.push(chosen);
-    //   for (i in seen)
-    //     console.log(seen[i]);
-    //   console.log("CHOSEN: " + chosen);
-    // }
-    // else {
-    //   console.log("CHOSEN: " + chosen);
-    // }
-    
-    // console.log($(this).val());
-    
-//   })
-// })

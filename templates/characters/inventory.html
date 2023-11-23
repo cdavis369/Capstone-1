@@ -1,100 +1,144 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row d-flex justify-content-md-center">
-  <div class="col col-sm-6 col-md-6 col-lg-6 float-center forefront">
-    <p>Choose</p>
-    <div class="row justify-content-md-center">
-      <p>
-        <b class="inventory-choice" id="equipment-option">
-          Equipment
-        </b> 
-        or 
-        <b class="inventory-choice" id="gold-option">
-          Gold
-        </b>
-      </p>
-    </div>
-  </div>
-</div>
+<div class="container forefront mt-5 p-3">
+  <div class="row justify-content-md-center">
+    <div class="col-6">
+      <div class="row justify-content-center text-center">
+        <h4 class="col-6">{{g.character.name}} {% if g.character.race_completed %}{{g.character.race.capitalize()}}{% endif %} {% if g.character.character_class_completed %}{{g.character.character_class.capitalize()}}{% endif %}</h4>
+      </div>
+      <div class="row justify-content-md-center text-center">
+        <div class="col-4">
+          <p>Choose:</p>
+        </div>
+      </div>
+      <div class="row justify-content-center text-center">
+        <div class="col-4">
+          <p>
+            <b class="inventory-choice" id="equipment-option">
+              Equipment
+            </b> 
+            or 
+            <b class="inventory-choice" id="gold-option">
+              Gold
+            </b>
+          </p>
+        </div>
+      </div>
 
-<div id="starting-gold">
-  <div class="row justify-content-md-center">
-    <div class="col col-sm-6 col-md-6 col-lg-6 float-center forefront">
-      <b>{{char_class['name']}} Starting Gold:</b>
-    </div>
-  </div>
-  <div class="row justify-content-md-center">
-    <div class="col col-sm-3 col-md-3 col-lg-3 float-end forefront">
-      <a id="random-gold-roll" class="col col-sm-1 col-md-1 col-lg-1 float-end">
-        Randomize
-      </a>
-    </div>
-    <div class="col col-sm-3 col-md-3 col-lg-3 float-center forefront">
-      <select class="form" id="starting-gold-option">
-        <option selected>5d4</option>
-        {% for i in range(20) %}
-        <option value="{{i+1}}">{{i+1}}</option>
+      <div id="starting-gold">
+        <div class="row justify-content-md-center text-center">
+          <div class="col-8">
+            <b>{{char_class['name']}} Starting Gold:</b>
+          </div>
+        </div>
+        <div class="row justify-content-md-center">
+          <div class="col-4 float-end">
+            <a id="random-gold-roll">
+              Randomize
+            </a>
+          </div>
+          <div class="col-4 ">
+            <select class="form" id="starting-gold-option">
+              <option selected>5d4</option>
+              {% for i in range(20) %}
+              <option value="{{i+1}}">{{i+1}}</option>
+              {% endfor %}
+            </select>
+            <p> x 10 = <span id="starting-gold-result">0 gp</span></p>
+          </div>
+        </div>
+        <div class="row justify-content-md-center">
+          <div class="col">
+            <a href="/characters/new/description" class="btn btn-secondary btn-lg btn-block">back</a>
+          </div>
+          <div class="col-9">
+            <p class="btn btn-success btn-lg btn-block add-gold">
+              Add Starting Gold
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div id="starting-equipment">
+        <div class="row justify-content-md-center text-center">
+          <div class="col-10">
+            <b>{{char_class['name']}} Starting Equipment</b>
+          </div>
+        </div>
+        <div class="row justify-content-md-center">
+          <div class="col-4">
+            <ul>
+            {% for item in char_class['starting_equipment'] %}
+              <li class="char-starting-item" id="{{item['equipment']['index']}}">
+                {{ item['quantity'] }} {{ item['equipment']['name']}}
+              </li>
+            {% endfor %}
+            </ul>
+          </div>
+        </div>
+        {% for i in range(equipment_choices|length) %}
+        <div class="row justify-content-md-center text-center">
+          <div class="col-10">
+            {{ equipment_choices[i]['desc'] }}
+          </div>
+        </div>
+        <div class="row justify-content-md-center text-center">
+          <div class="col-6">
+            <select class="form-select starting-equipment-option">
+              <option selected>-Choose-</option>
+              {% for j in range(equipment_choices[i]['from']['options']|length)%}
+              {% if equipment_choices[i]['from']['options'][j]['option_type'] == 'counted_reference' %}
+              <option value="{{equipment_choices[i]['from']['options'][j]['of']['index']}}">
+                {{equipment_choices[i]['from']['options'][j]['of']['name']}}
+              </option>
+              {% elif equipment_choices[i]['from']['options'][j]['option_type'] == 'choice' %}
+              <option value="{{equipment_choices[i]['from']['options'][j]['choice']['from']['equipment_category']['index']}}">
+                {{equipment_choices[i]['from']['options'][j]['choice']['desc']}}
+              </option>
+              {% endif%}
+              {% if new_character_profs %}
+              {% endif %}
+              {% endfor %}
+            </select>
+          </div>
+        </div>
         {% endfor %}
-      </select>
-      <p> x 10 = <span id="starting-gold-result">0 gp</span></p>
-    </div>
-  </div>
-  <div class="row justify-content-md-center">
-    <div class="col col-sm-6 col-md-6 col-lg-6 float-center forefront">
-      <div class="row justify-content-md-center">
-        <p class="btn btn-success btn-sm add-gold">
-          Add Starting Gold
-        </p>
+        <div class="row justify-content-md-center mt-3">
+          <div class="col">
+            <a href="/characters/new/description" class="btn btn-secondary btn-lg btn-block">back</a>
+          </div>
+          <div class="col-9">
+            <p class="btn btn-success btn-lg btn-block add-equipment">
+              Add Equipment
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+  {% if g.character.inventory_completed %}
+  <div class="row justify-content-center text-center">
+    <div class="col-6">
+      <b>In inventory: </b>
+      {% if 'gold' in inventory %}
+      {{inventory['gold'].amount}} gp
+      {% else %}
+      {% for item in inventory['equipment']%}
+      {% if loop.index  == inventory['equipment']|length %}
+      {{item.item}}
+      {% else %}
+      {{item.item}}, 
+      {% endif %}
+      {%endfor%}
+      {%endif%}
+    </div>
+  </div>
+  {% endif %}
 </div>
 
-<div id="starting-equipment">
-  <div class="row justify-content-md-center">
-    <div class="col col-sm-6 col-md-6 col-lg-6 float-center forefront">
-      <b>{{char_class['name']}} Starting Equipment</b>
-    </div>
-  </div>
-  <div class="row justify-content-md-center">
-    <div class="col col-sm-6 col-md-6 col-lg-6 float-center forefront">
-      <ul>
-      {% for item in char_class['starting_equipment'] %}
-        <li class="char-starting-item" id="{{item['equipment']['index']}}">
-          {{ item['quantity'] }} {{ item['equipment']['name']}}
-        </li>
-      {% endfor %}
-      </ul>
-    </div>
-  </div>
-  {% for i in range(equipment_choices|length) %}
-  <div class="row justify-content-md-center">
-    <div class="col col-sm-6 col-md-6 col-lg-6 float-center forefront">
-      {{ equipment_choices[i]['desc'] }}
-    </div>
-  </div>
-  <div class="row justify-content-md-center">
-    <div class="col col-sm-6 col-md-6 col-lg-6 float-center forefront">
-      <select class="form-select col col-sm-3 col-md-3 col-lg-3 starting-equipment-option">
-        <option selected>-Choose {{equipment_choices[i]['choose']}}-</option>
-        {% for j in range(equipment_choices[i]['from']['options']|length)%}
-        {% if equipment_choices[i]['from']['options'][j]['option_type'] == 'counted_reference' %}
-        <option value="{{equipment_choices[i]['from']['options'][j]['of']['index']}}">
-          {{equipment_choices[i]['from']['options'][j]['of']['name']}}
-        </option>
-        {% elif equipment_choices[i]['from']['options'][j]['option_type'] == 'choice' %}
-        <option value="{{equipment_choices[i]['from']['options'][j]['choice']['from']['equipment_category']['index']}}">
-          {{equipment_choices[i]['from']['options'][j]['choice']['desc']}}
-        </option>
-        {% endif%}
-        {% if new_character_profs %}
-        {% endif %}
-        {% endfor %}
-      </select>
-    </div>
-  </div>
-  {% endfor %}
-</div>
+
+
+
 
 {% endblock %}

@@ -1,84 +1,88 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-md-center">
-  <b>Race: {{race_details['name']}}</b>
-</div>
-<div class="row justify-content-md-center">
-  <div class="col col-sm-6 col-md-6 col-lg-6 forefront">
-    <table class="table chosen-race-info-table">
-      <tbody>
-        <tr>
-          <th scope="row">Race</th>
-          <td>{{race_details['name']}}</td>
-        </tr>
-        <tr>
-          <th scope="row">Speed</th>
-          <td>{{race_details['speed']}}</td>
-        </tr>
-        <tr>
-          <th scope="row">Age</th>
-          <td>{{race_details['age']}}</td>
-        </tr>
-        <tr>
-          <th scope="row">Alignment</th>
-          <td>{{race_details['alignment']}}</td>
-        </tr>
-        <tr>
-          <th scope="row">Size</th>
-          <td>{{race_details['size']}}</td>
-        </tr>
-        <tr>
-          <th scope="row">Languages</th>
-          <td>
-            {% for language in race_details['languages']%}
-            {% if loop.index == race_details['languages']|length %}
-            {{language['name']}}
-            {% else %}
-            {{language['name']}}, 
-            {% endif %}
-            {% endfor %}
-          </td>
-        </tr>
-        <tr>
-        <tr>
-          <th scope="row">Traits</th>
-          <td>
-            {% for trait in race_details['traits'] %}
-            {% if loop.index == race_details['traits']|length %}
-            {{trait['name']}}
-            {% else %}
-            {{trait['name']}}, 
-            {% endif %}
-            {% endfor %}
-          </td>
-        </tr>
-        <tr>
-          <th scope="row">Subraces</th>
-          <td>
-            {% if race_details['subraces']|length > 0 %}
-            {% for subrace in race_details['subraces'] %}
-            {% if loop.index == race_details['subraces']|length %}
-            {{ subrace['name'] }}
-            {% else %}
-            {{ subrace['name'] }}, 
-            {% endif %}
-            {% endfor %}
-            {% else %}
-            <p>None</p>
-            {% endif %}
-            
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="row justify-content-md-center forefront">
-      <a href="/new-character-race" class="btn btn-secondary btn-lg col-sm-2 col-md-2 col-lg-2">back</a>
-      <a href="/new-character-class" class="btn btn-success btn-lg col-sm-10 col-md-10 col-lg-10">next</a>
+<div class="container mt-5">
+  <div class="row justify-content-md-center">
+    <div class="col-8 forefront pb-3 text-center">
+      <h4>{{g.character.name}} {% if g.character.race_completed %}{{g.character.race.capitalize()}}{% endif %} {% if g.character.character_class_completed %}{{g.character.character_class.capitalize()}}{% endif %}</h4>
+      <table class="table chosen-race-info-table">
+        <tbody>
+          <tr>
+            <th scope="row">Race</th>
+            <td>{{race_details['name']}}</td>
+          </tr>
+          <tr>
+            <th scope="row">Speed</th>
+            <td>{{race_details['speed']}}</td>
+          </tr>
+          <tr>
+            <th scope="row">Age</th>
+            <td>{{race_details['age']}}</td>
+          </tr>
+          <tr>
+            <th scope="row">Alignment</th>
+            <td>{{race_details['alignment']}}</td>
+          </tr>
+          <tr>
+            <th scope="row">Size</th>
+            <td>{{race_details['size']}}</td>
+          </tr>
+          <tr>
+            <th scope="row">Languages</th>
+            <td>
+              {% for language in race_details['languages']%}
+              {% if loop.index == race_details['languages']|length %}
+              {{language['name']}}
+              {% else %}
+              {{language['name']}}, 
+              {% endif %}
+              {% endfor %}
+            </td>
+          </tr>
+          <tr>
+          <tr>
+            <th scope="row">Traits</th>
+            <td>
+              {% for trait in race_details['traits'] %}
+              {% if loop.index == race_details['traits']|length %}
+              {{trait['name']}}
+              {% else %}
+              {{trait['name']}}, 
+              {% endif %}
+              {% endfor %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">Subraces</th>
+            <td>
+              {% if race_details['subraces']|length > 0 %}
+              {% for subrace in race_details['subraces'] %}
+              {% if loop.index == race_details['subraces']|length %}
+              {{ subrace['name'] }}
+              {% else %}
+              {{ subrace['name'] }}, 
+              {% endif %}
+              {% endfor %}
+              {% else %}
+              <p>None</p>
+              {% endif %}
+              
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="row justify-content-md-center mt-3">
+        <div class="col">
+          <a href="/new-character-race" class="btn btn-secondary btn-lg btn-block">change</a>
+        </div>
+        <div class="col-9">
+          <a href="/new-character-class" class="btn btn-success btn-lg btn-block">next</a>
+        </div>
+      </div>
     </div>
   </div>
-
 </div>
+
 
 
 {% endblock %}

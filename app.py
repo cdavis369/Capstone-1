@@ -9,7 +9,8 @@ import requests
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://mejhvcte:jr0_lMo695InRuW6nVxFgfyCTnu6HBDG@mahmud.db.elephantsql.com/mejhvcte'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://mejhvcte:jr0_lMo695InRuW6nVxFgfyCTnu6HBDG@mahmud.db.elephantsql.com/mejhvcte'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///dnd'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = False
 app.config['SECRET_KEY'] = "MYFIRSTCAPSTONEPROJECT"
@@ -21,13 +22,16 @@ with app.app_context():
   connect_db(app)
   db.create_all()
 CURR_USER_KEY = "curr_user"
-print
+
 @app.before_request
 def add_user_to_g():
   """Add current user to Flask global if logged in."""
-  
   if CURR_USER_KEY in session:
     g.user = User.query.get(session[CURR_USER_KEY])
+    if 'character_id' in session:
+      g.character = Character.query.filter_by(user_id=session[CURR_USER_KEY], id=session['character_id']).first()
+    else:
+      g.character = None
   else:
     g.user = None
     
@@ -71,7 +75,7 @@ def user_login():
 
   if form.validate_on_submit():
     user = User.authenticate(form.username.data, form.password.data)
-    print(f"======================================={user}")
+    # print(f"======================================={user}")
     if user:
       do_login(user)
       flash(f"Welcome back, {user.username}.", "success")
@@ -93,6 +97,7 @@ def index():
   """Homepage"""
   if 'character_id' in session:
     del session['character_id']
+    g.character = None
   form = EquipmentForm()
   response = requests.get(f"{BASE_URL}/equipment")
   items = response.json()
@@ -149,10 +154,11 @@ def new_character():
                                 coin_weight=form.coin_weight.data,
                                 do_next = "race",
                                 level=1)
+    char.name_completed = True
     db.session.add(char)
     db.session.commit()
     session['character_id'] = char.id
-    print(f"===============================================\nCHAR ID:\n{session['character_id']}")
+    # print(f"===============================================\nCHAR ID:\n{session['character_id']}")
     return redirect("/new-character-race")
   
   return render_template("/characters/new.html", form=form)
@@ -164,15 +170,22 @@ def new_character_race():
     return redirect("/")
   
   form = NewCharacterRaceForm()
-
+  
   response = requests.get(f"{BASE_URL}/races")
   r = response.json()
   races = [('choose', '-Choose Your Race-')]
-  for race in r['results']:
-    races.append((race['index'], race['name']))
-  print(races)
-  form.races.choices = races
+  
+  if g.character.race_completed:
+    races[0] = (g.character.race, g.character.race.capitalize())
 
+  for race in r['results']:
+    if race['index'] == g.character.race:
+      continue
+    races.append((race['index'], race['name']))
+
+
+  form.races.choices = races
+  
   if form.validate_on_submit():
     race = form.races.data
     if race == 'choose':
@@ -181,6 +194,7 @@ def new_character_race():
     char = Character.query.filter_by(user_id=session[CURR_USER_KEY], id=session['character_id']).first()
     char.race = form.races.data
     char.do_next = "class"
+    char.race_completed = True
     db.session.commit()
     return redirect(f"/characters/new/race/{race}")
   
@@ -195,12 +209,24 @@ def new_character_class():
   form = NewCharacterClassForm()
   response = requests.get(f" {BASE_URL}/classes")
   r = response.json()
-  classes = [(char_class['index'], char_class['name']) for char_class in r['results']]
+  classes = [('choose', '-Choose Your Class-')]
+  
+  if g.character.character_class_completed:
+    classes[0] = (g.character.character_class, g.character.character_class.capitalize())
+  
+  for char_class in r['results']:
+    if char_class['index'] == g.character.character_class:
+      continue
+    classes.append((char_class['index'], char_class['name']))
+
   form.classes.choices = classes
   if form.validate_on_submit():
     character_class = form.classes.data
+    if character_class == 'choose':
+      flash("Choose your class.", "danger")
     char = Character.query.filter_by(user_id=session[CURR_USER_KEY], id=session['character_id']).first()
     char.character_class = character_class
+    char.character_class_completed = True
     char.do_next = "proficiencies"
     db.session.commit()
     return redirect(f"/characters/new/class/{character_class}/proficiencies")
@@ -209,12 +235,18 @@ def new_character_class():
 
 @app.route('/characters/new/race/<race>')
 def show_race_details(race):
+  if CURR_USER_KEY not in session:
+    return redirect("/")
+  
   response = requests.get(f"{BASE_URL}/races/{race}")
   race_details = response.json()
   return render_template("/characters/race.html", race_details=race_details)
 
 @app.route('/characters/new/class/<char_class>/proficiencies', methods=["GET", "POST"])
 def show_class_details(char_class):
+  if CURR_USER_KEY not in session or 'character_id' not in session:
+    return redirect("/")
+  
   response = requests.get(f"{BASE_URL}/classes/{char_class}")
   class_details = response.json()
   
@@ -234,16 +266,23 @@ def show_class_details(char_class):
     char_profs = Proficiency.query.filter_by(character_id = session['character_id']).all()
     if len(char_profs) > 0:
       Proficiency.query.filter_by(character_id = session['character_id']).delete()
-    print(char_profs)
+    # print(char_profs)
 
     for prof in new_profs:
-      new_prof = Proficiency(proficiency = prof, character_id = session['character_id'])
+      new_prof = Proficiency(proficiency = prof, character_id = session['character_id'], user_id = g.user.id)
       db.session.add(new_prof)
     char = Character.query.filter_by(user_id=session[CURR_USER_KEY], id=session['character_id']).first()
     char.do_next = "abilities"
+    char.proficiencies_completed = True
     db.session.commit()
   
     return redirect('/characters/new/ability-scores')
+  
+  if g.character.proficiencies_completed:
+    current_profs = Proficiency.query.filter_by(user_id=g.user.id, character_id=g.character.id)
+    char_profs = [prof.proficiency for prof in current_profs]
+    # print(char_profs)
+    return render_template('/characters/class.html', class_details=class_details, current_profs=char_profs)
   
   return render_template('/characters/class.html', class_details=class_details)
     
@@ -269,10 +308,11 @@ def get_ability_scores_form():
     char.wisdom = ability_scores['wis']
     char.charisma = ability_scores['cha']
     char.do_next = 'description'
+    char.abilities_completed = True
     db.session.commit()
-    print(f"============================================{ability_scores}")
+    # print(f"============================================{ability_scores}")
     return jsonify(success=True)
-    
+
   return render_template("characters/abilities.html", bonuses=bonuses)
         
 @app.route('/characters/new/description', methods=["GET", "POST"])
@@ -285,51 +325,6 @@ def get_character_description_form():
   error = ("============================================\n" +
            "Unable to retrieve general data from D&D 5e API -> ")
   char_data  = {}
-  
-  if request.method == "POST":
-    details = request.get_json()
-    languages = details['languages'].split(",")
-    
-    for language in languages:
-      new_lang = Languages(language=language, character_id=char.id)
-      db.session.add(new_lang)
-      
-    char.lifestyle = details['lifestyle']
-    char.alignment = details['alignment']
-    char.do_next = 'inventory'
-    physicals_traits = PhysicalTraits(gender=details['gender'],
-                                      age=details['age'],
-                                      weight=details['weight'],
-                                      height=details['height'],
-                                      eyes=details['eyes'],
-                                      skin=details['skin'],
-                                      hair=details['hair'],
-                                      character_id=char.id,)
-    db.session.add(physicals_traits)
-    
-    personality_trait = Personality(trait=details['personality']['traits'],
-                                    character_id=char.id)
-    db.session.add(personality_trait)
-    
-    ideals = Ideals(trait=details["ideals"], character_id=char.id)
-    db.session.add(ideals)
-    
-    bonds = Bonds(trait=details["bonds"], character_id=char.id)
-    db.session.add(bonds)
-    
-    flaws = Flaws(trait=details["flaws"], character_id=char.id)
-    db.session.add(flaws)
-    
-    notes = Notes(organizations=details['organizations'],
-                  allies=details['allies'],
-                  enemies=details['enemies'],
-                  backstory=details['backstory'],
-                  other=details['other'],
-                  character_id=char.id)
-    db.session.add(notes)
-    
-    db.session.commit()
-    return jsonify(success=True)
   
   try:
     response = requests.get(f"{BASE_URL}/languages")
@@ -356,7 +351,7 @@ def get_character_description_form():
   try:
     response = requests.get(f"{BASE_URL}/races/{char.race}")
     char_data['race'] = response.json()
-    print(char_data['race'])
+    # print(char_data['race'])
   except:
     print(error + "race")
   try:
@@ -365,6 +360,107 @@ def get_character_description_form():
   except:
     print(error + "class")
     
+  if request.method == "POST":
+    details = request.get_json()
+    languages = details['languages'].split(",")
+    
+    if g.character.description_completed:
+      Languages.query.filter_by(character_id=char.id).delete()
+      
+      physicals_traits = PhysicalTraits.query.filter_by(character_id=char.id).first()
+      physicals_traits.gender = details['gender']
+      physicals_traits.age = details['age']
+      physicals_traits.weight = details['weight']
+      physicals_traits.height = details['height']
+      physicals_traits.eyes = details['eyes']
+      physicals_traits.skin = details['skin']
+      physicals_traits.hair = details['hair']
+
+      personality_trait = Personality.query.filter_by(character_id=char.id).first()
+      personality_trait.trait = details['personality']['traits']
+
+      ideals = Ideals.query.filter_by(character_id=char.id).first()
+      ideals.trait=details['ideals']
+
+      bonds = Bonds.query.filter_by(character_id=char.id).first()
+      bonds.trait=details['bonds']
+
+      flaws = Flaws.query.filter_by(character_id=char.id).first()
+      flaws.trait = details['flaws']
+
+      notes = Notes.query.filter_by(character_id=char.id).first()
+      notes.organizations = details['organizations']
+      notes.allies = details['allies']
+      notes.enemies = details['enemies']
+      notes.backstory = details['backstory']
+      notes.other = details['other']
+    else:
+      physicals_traits = PhysicalTraits(gender=details['gender'],
+                                        age=details['age'],
+                                        weight=details['weight'],
+                                        height=details['height'],
+                                        eyes=details['eyes'],
+                                        skin=details['skin'],
+                                        hair=details['hair'],
+                                        character_id=char.id,)
+      db.session.add(physicals_traits)    
+
+      personality_trait = Personality(trait=details['personality']['traits'],
+                                    character_id=char.id)
+      db.session.add(personality_trait)
+      
+      ideals = Ideals(trait=details["ideals"], character_id=char.id)
+      db.session.add(ideals)
+      
+      bonds = Bonds(trait=details["bonds"], character_id=char.id)
+      db.session.add(bonds)
+      
+      flaws = Flaws(trait=details["flaws"], character_id=char.id)
+      db.session.add(flaws)
+      
+      notes = Notes(organizations=details['organizations'],
+                    allies=details['allies'],
+                    enemies=details['enemies'],
+                    backstory=details['backstory'],
+                    other=details['other'],
+                    character_id=char.id)
+      db.session.add(notes)
+
+
+    for language in char_data['race']['languages']:
+      languages.append(language['name'])
+
+    for language in languages:
+      lang = language.strip()
+      new_lang = Languages(language=lang, character_id=char.id)
+      db.session.add(new_lang)
+      
+    char.lifestyle = details['lifestyle']
+    char.alignment = details['alignment']
+    char.faith = details['faith']
+    char.do_next = 'inventory'
+    char.description_completed = True
+    db.session.commit()
+    return jsonify(success=True)
+
+  if g.character.description_completed:
+    physicals_traits = PhysicalTraits.query.filter_by(character_id=char.id).first()
+    personality_trait = Personality.query.filter_by(character_id=char.id).first()
+    ideals = Ideals.query.filter_by(character_id=char.id).first()
+    bonds = Bonds.query.filter_by(character_id=char.id).first()
+    flaws = Flaws.query.filter_by(character_id=char.id).first()
+    notes = Notes.query.filter_by(character_id=char.id).first()
+    return render_template("characters/description.html", 
+                           name=char.name,
+                           char_data=char_data,
+                           lifestyle=LIFESTYLE,
+                           physicals_traits=physicals_traits,
+                           personality_trait=personality_trait,
+                           ideals=ideals,
+                           bonds=bonds,
+                           flaws=flaws,
+                           notes=notes)
+
   return render_template("characters/description.html", 
                          name=char.name,
                          char_data=char_data,
@@ -379,31 +475,52 @@ def get_lifestyle_description(lifestyle):
 
 @app.route('/characters/new/inventory', methods=["GET", "POST"])
 def show_inventory_options():
+  if CURR_USER_KEY not in session:
+    return redirect("/")
   char = Character.query.filter_by(user_id=session[CURR_USER_KEY], id=session['character_id']).first()
   
   if request.method == "POST":
-    print("IN POST =====================================")
     data = request.get_json()
-    print(type(data['inventory_type']), type(data['quantity']))
     if data['inventory_type'] == 'gold':
-      amount = int(data['quantity'])
+      inventory = Inventory.query.filter_by(character_id=char.id).all()
+      if inventory:
+        for item in inventory:
+          db.session.delete(item)
+      amount = data['quantity']
       weight = float(amount) * 0.02
-      if char.coin_weight == "t":
-        gold = Currency(currency = 'gp',
-                         amount = amount,
-                         weight = weight, 
-                         character_id = char.id,
-                         character = char.name)
-        db.session.add(gold)
+      gold = Currency.query.filter_by(character_id=char.id).first()
+      if gold:
+        gold.amount = amount
+        gold.weight = weight
       else:
         gold = Currency(currency = 'gp',
-                         amount = amount,
-                         character_id = char.id,
-                         character = char.name)
-      db.session.add(gold)
+                          amount = amount,
+                          weight = weight, 
+                          character_id = char.id)
+        db.session.add(gold)
+    else:
+      gold = Currency.query.filter_by(character_id=char.id).first()
+      print(gold)
+      if gold:
+        db.session.delete(gold)
+      inventory = Inventory.query.filter_by(character_id=char.id).all()
+      if inventory:
+        for item in inventory:
+          db.session.delete(item)
+      equipment = data['equipment'].split(',')
+      for item in equipment:
+        response = requests.get(f"{BASE_URL}/equipment/{item}")
+        r = response.json()
+        new_item = Inventory(item=item, character_id=char.id)
+        if 'weight' in r:
+          new_item.weight = r['weight']
+        db.session.add(new_item)
+    char.inventory_completed = True
+    char.completed = True
     db.session.commit()
-    
+    return jsonify(success=True)
 
+  
   response = requests.get(f"{BASE_URL}/classes/{char.character_class}")
   char_class = response.json()
   response = requests.get(f"{BASE_URL}/races/{char.race}")
@@ -415,7 +532,21 @@ def show_inventory_options():
     option['from'] = char_class["starting_equipment_options"][i]["from"]
     equipment_choices.append(option)
     
-  #char_class['starting_equipment_options'][0]['from']['options'][0]['of']['name']
+  if char.inventory_completed:
+    gold = gold = Currency.query.filter_by(character_id=char.id).first()
+    inventory = {}
+    if gold:
+      inventory['type'] = 'gold'
+      inventory['gold'] = gold
+    else:
+      equipment = Inventory.query.filter_by(character_id=char.id).all()
+      inventory['type'] = 'equipment'
+      inventory['equipment'] = equipment
+    return render_template("characters/inventory.html", 
+                         char_class=char_class,
+                         race=race,
+                         equipment_choices=equipment_choices, 
+                         inventory=inventory) 
   return render_template("characters/inventory.html", 
                          char_class=char_class,
                          race=race,
@@ -423,6 +554,9 @@ def show_inventory_options():
   
 @app.route('/users/characters/<int:character_id>')
 def get_user_character(character_id):
+  if CURR_USER_KEY not in session:
+    return redirect("/")
+  
   char = Character.query.filter_by(user_id=session[CURR_USER_KEY], id=character_id).first()
   if char:
     session['character_id'] = character_id
@@ -434,30 +568,25 @@ def get_user_character(character_id):
       return redirect('/new-character-race')
     elif char.do_next == 'class':
       return redirect('/new-character-class')
+    elif char.do_next == 'proficiencies':
+      return redirect(f'/characters/new/class/{char.character_class}/proficiencies')
     elif char.do_next == 'abilities':
       return redirect('/characters/new/ability-scores')
     elif char.do_next == 'description':
       return redirect('/characters/new/description')
     elif char.do_next == 'inventory':
-      return redirect('new-character-inventory')
+      return redirect('/characters/new/inventory')
   else:
-    return redirect('/characters/character-sheet')
+    return redirect('/new-character')
     
+@app.route('/users/characters/delete/<int:character_id>')
+def delete_character(character_id):
+  if CURR_USER_KEY not in session:
+    return redirect("/")
+  
+  char = Character.query.filter_by(user_id=session[CURR_USER_KEY], id=character_id).first()
+  db.session.delete(char)
+  db.session.commit()
+  return redirect('/')
 
-# @app.route('/ability-scores')
-# def show_ability_scores():
-#   """Show ability scores."""
-#   url = f"{BASE_URL}/ability-scores"
-#   response = requests.get(url)
-#   r = response.json()
-#   abilities = {}
-#   for ability in r['results']:
-#     abilities[ability['index']] = {}
-#   for a in abilities:
-#     response = requests.get(f"{BASE_URL}/ability-scores/{a}")
-#     r = response.json()
-#     abilities[a]['name'] = r['full_name']
-#     abilities[a]['desc'] = r['desc']
-#     abilities[a]['skills'] = r['skills']
-#   return redirect('/abilities.html')
     

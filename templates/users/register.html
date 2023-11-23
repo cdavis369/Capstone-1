@@ -1,23 +1,27 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
-<div class="row justify-content-md-center">
-  <div class="col-md-7 col-lg-5">
-    <h2 class="join-message">Create your account</h2>
-    <form method="POST" id="user_form">
-      {{ form.hidden_tag() }}
-
-      {% for field in form if field.widget.input_type != 'hidden' %}
-        {% for error in field.errors %}
-          <span class="text-danger">{{ error }}</span>
+<div class="container mt-5">
+  <div class="row justify-content-md-center text-center">
+    <div class="col-6 forefront pb-3">
+      <h2>Create an Account</h2>
+      <form method="POST">
+        {{ form.hidden_tag() }}
+  
+        {% for field in form if field.widget.input_type != 'hidden' %}
+          {% for error in field.errors %}
+            <span class="text-danger">{{ error }}</span>
+          {% endfor %}
+          {{ field(placeholder=field.label.text, class="form-control") }}
         {% endfor %}
-        {{ field(placeholder=field.label.text, class="form-control") }}
-      {% endfor %}
-
-      <button class="btn btn-primary btn-lg btn-block">Register</button>
-    </form>
+  
+        <button class="btn btn-outline-success btn-block btn-lg mt-2">Submit</button>
+        <p class="mt-2">Already have an account?</p>
+        <a href="/login" class="btn btn-outline-primary btn-block btn-lg">Login</a>
+      </form>
+    </div>
   </div>
 </div>
+
 
 {% endblock %}

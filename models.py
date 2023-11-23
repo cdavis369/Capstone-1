@@ -59,6 +59,14 @@ class Character(db.Model):
     faith = db.Column(db.String(80))
     lifestyle = db.Column(db.String(80))
     level = db.Column(db.Integer, nullable=False)
+    #------------------ creation ------------------#
+    name_completed = db.Column(db.Boolean, default=False)
+    race_completed = db.Column(db.Boolean, default=False)
+    character_class_completed = db.Column(db.Boolean, default=False)
+    proficiencies_completed = db.Column(db.Boolean, default=False)
+    abilities_completed = db.Column(db.Boolean, default=False)
+    description_completed = db.Column(db.Boolean, default=False)
+    inventory_completed = db.Column(db.Boolean, default=False)
     completed = db.Column(db.Boolean, default=False)
     do_next = db.Column(db.String(80))
     #------------------ skills ------------------#
@@ -91,6 +99,7 @@ class Proficiency(db.Model):
     """Character proficiencies"""
     __tablename__= "proficiencies"
     id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     proficiency = db.Column(db.String(80), nullable=False)
     character_id = db.Column(db.Integer, db.ForeignKey("characters.id", ondelete="CASCADE"), nullable=False)
     character = db.relationship("Character", backref=db.backref("proficiencies", lazy=True))

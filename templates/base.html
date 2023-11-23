@@ -17,110 +17,132 @@
             <span>D&D Character Creator</span>
           </a>
         </div>
-        <!-- <ul class="nav navbar-nav navbar-left">
-          <li>
-            <div class="dropdown">
-              <p class="dropdown-toggle" data-toggle="dropdown">Character Data</p>     
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href="/ability-scores">Ability Scores</a>
-                <a class="dropdown-item" href="/alignments">Alignments</a>
-                <a class="dropdown-item" href="/backgrounds">Backgrounds</a>
-                <a class="dropdown-item" href="/languages">Languages</a>
-                <a class="dropdown-item" href="/proficiencies">Proficiencies</a>
-                <a class="dropdown-item" href="/skills">Skills</a>
-              </div>                                                                              
-            </div>
-          </li>
-          <li>
-            <div class="dropdown">
-              <p class="dropdown-toggle" data-toggle="dropdown">Class Data</p>     
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href="/class/barbarian">Barbarian</a>
-                <a class="dropdown-item" href="/class/bard">Bard</a>
-                <a class="dropdown-item" href="/class/cleric">Cleric</a>
-                <a class="dropdown-item" href="/class/druid">Druid</a>
-                <a class="dropdown-item" href="/class/fighter">Fighter</a>
-                <a class="dropdown-item" href="/class/monk">Monk</a>
-                <a class="dropdown-item" href="/class/paladin">Paladin</a>
-                <a class="dropdown-item" href="/class/ranger">Ranger</a>
-                <a class="dropdown-item" href="/class/rogue">Rogue</a>
-                <a class="dropdown-item" href="/class/sorcerer">Sorcerer</a>
-                <a class="dropdown-item" href="/class/warlock">Warlock</a>
-                <a class="dropdown-item" href="/class/wizard">Wizard</a>
-              </div>                                                                              
-            </div>
-          </li>
-          <li>
-            <div class="dropdown">
-              <p class="dropdown-toggle" data-toggle="dropdown">Game Mechanics</p>     
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href="/mechanics/conditions">Conditions</a>
-                <a class="dropdown-item" href="/mechanics/damage-types">Damage Types</a>
-                <a class="dropdown-item" href="/mechanics/magic-schools">Magic Schools</a>
-              </div>                                                                              
-            </div>
-          </li>
-          <li>
-            <div class="dropdown">
-              <p class="dropdown-toggle" data-toggle="dropdown">Equipment</p>     
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href="/equipment/standard">Standard Equipment</a>
-                <a class="dropdown-item" href="/equipment/categories">Equipment Categories</a>
-                <a class="dropdown-item" href="/equipment/weapon-categories">Weapon Categories</a>
-                <a class="dropdown-item" href="/equipment/magic">Magic Items</a>
-              </div>                                                                              
-            </div>
-          </li>
-          <li>
-            <div class="dropdown">
-              <p class="dropdown-toggle" data-toggle="dropdown">Spells</p>     
-              <div class="dropdown-menu">
-                <a class="dropdown-item" href="/equipment/standard">Standard Equipment</a>
-                <a class="dropdown-item" href="/equipment/categories">Equipment Categories</a>
-                <a class="dropdown-item" href="/equipment/weapon-categories">Weapon Categories</a>
-                <a class="dropdown-item" href="/equipment/magic">Magic Items</a>
-              </div>                                                                              
-            </div>
-          </li>
-        </ul> -->
         <ul class="nav navbar-nav navbar-right">
-          {% if request.endpoint != None %}
-          <!--<li>
-            <form class="navbar-form navbar-right" action="/users">
-              <input name="q" class="form-control" placeholder="Search Warbler" id="search">
-              <button class="btn btn-default">
-                <span class="fa fa-search"></span>
-              </button>
-            </form>
-          </li>-->
-          {% endif %}
-          
-          {% if not g.user %}
-          <li id="navbar-register"><a href="/register">Sign up</a></li>
-          <li id="navbar-login"><a href="/login">Log in</a></li>
-          {% else %}
-          <li>
-            <div class="dropdown">
-              <p class="dropdown-toggle" data-toggle="dropdown">Characters</p>     
-              <div class="dropdown-menu">
-                {% for character in char_data %}
-                <a class="dropdown-item" href="/users/characters/{{character.char_id}}">
-                  {{character.char_name}}
-                </a>
-                {% endfor %}
-                <a class="dropdown-item" href="/new-character">New Characater</a>
-              </div>                                                                              
-            </div>
-          </li>
+          {% if g.user %}
           <li id="navbar-logout"><a href="/logout">Log out</a></li>
           {% endif %}
         </ul>
       </div>
     </nav>
-    {% for category, message in get_flashed_messages(with_categories=True) %}
-    <div class="alert alert-{{ category }}">{{ message }}</div>
-    {% endfor %}
+    {% if g.character %}
+    <div class="row justify-content-center mt-5">
+      <div class="col-8 forefront">
+        <div class="row justify-content-center">
+          {% if g.character.name_completed %}
+          <a href="/new-character" 
+            class="col btn btn-lg 
+              {% if request.url_rule.endpoint == 'new_character' %}
+                btn-warning
+              {% else %}
+                btn-success
+              {% endif %}">
+            Name
+        </a>
+          {% else %}
+          <a href="/new-character" class="col btn btn-lg btn-outline-dark">Name</a>
+          {% endif %}
+
+          {% if g.character.race_completed %}
+          <a href="/characters/new/race/{{g.character.race}}" 
+            class="col btn btn-lg 
+              {% if request.url_rule.endpoint == 'show_race_details' %}
+                btn-warning
+              {% else %}
+                btn-success
+              {% endif %}">
+            Race
+          </a>
+          {% else %}
+          <a href="/new-character-race" class="col btn btn-lg btn-outline-dark">Race</a>
+          {% endif %}
+
+          {% if g.character.character_class_completed %}
+            <a href="/new-character-class"
+              class="col btn btn-lg 
+                {% if request.url_rule.endpoint == 'new_character_class' %}
+                  btn-warning
+                {% else %}
+                  btn-success
+                {% endif %}">
+              Class
+            </a>
+
+            {% if g.character.proficiencies_completed %}
+            <a href="/characters/new/class/{{g.character.character_class}}/proficiencies" 
+              class="col btn btn-lg 
+                {% if request.url_rule.endpoint == 'show_class_details' %}
+                  btn-warning
+                {% else %}
+                  btn-success
+                {% endif %}">
+              Proficiencies
+            </a>
+            {% else %}
+            <a href="/characters/new/class/{{g.character.character_class}}/proficiencies" class="col btn btn-lg btn-outline-dark">Proficiencies</a>
+            {% endif %}
+  
+            {% if g.character.abilities_completed %}
+            <a href="/characters/new/ability-scores" 
+              class="col btn btn-lg
+                {% if request.url_rule.endpoint == 'get_ability_scores_form' %}
+                  btn-warning
+                {% else %}
+                  btn-success
+                {% endif %}">
+              Abilities
+            </a>
+            {% else %}
+            <a href="/characters/new/ability-scores" class="col btn btn-lg btn-outline-dark">Abilities</a>
+            {% endif %}
+  
+            {% if g.character.description_completed %}
+            <a href="/characters/new/description" 
+              class="col btn btn-lg
+                {% if request.url_rule.endpoint == 'get_character_description_form' %}
+                  btn-warning
+                {% else %}
+                  btn-success
+                {% endif %}">
+              Description
+            </a>
+            {% else %}
+            <a href="/characters/new/description" class="col btn btn-lg btn-outline-dark">Description</a>
+            {% endif %}
+  
+            {% if g.character.inventory_completed %}
+            <a href="/characters/new/inventory" 
+              class="col btn btn-lg
+                {% if request.url_rule.endpoint == 'show_inventory_options' %}
+                  btn-warning
+                {% else %}
+                  btn-success
+                {% endif %}">
+              Inventory
+            </a>
+            {% else %}
+            <a href="/characters/new/inventory" class="col btn btn-lg btn-outline-dark">Inventory</a>
+            {% endif %}
+          {% else %}
+          <a href="/new-character-class" class="col btn btn-lg btn-outline-dark">Class</a>
+          <a href="/new-character-class" class="col btn btn-lg btn-outline-dark disabled" area-diable="true">Proficiencies</a>
+          <a href="/new-character-class" class="col btn btn-lg btn-outline-dark disabled" area-diable="true">Proficiencies</a>
+          <a href="/new-character-class" class="col btn btn-lg btn-outline-dark disabled" area-diable="true">Proficiencies</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    <div class="row justify-content-center">
+      <div class="col-6 mt-3">
+        {% for category, message in get_flashed_messages(with_categories=True) %}
+        <div class="alert alert-{{ category }} text-center">{{ message }}</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Block content to extend base -->
     {% block content %}{% endblock %}
+    <!--        DO NOT DELETE         -->
   </container>
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>

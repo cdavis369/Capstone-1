@@ -1,4 +1,5 @@
 .abilities-roll {
+  cursor: pointer;
   width: 50px;
   height: 50px;
 }
@@ -9,25 +10,6 @@
 
 .forefront {
   background-color: rgba(255, 255, 255, 0.75);
-}
-
-#character-diplay-form {
-  padding-top: 25px;
-}
-
-#active-abilities-roll {
-  width: 50px;
-  height: 50px;
-  color: red;
-  margin: 0 5rem 0 5rem;
-}
-
-.top-col {
-  margin-top: 50px;
-}
-
-.buttons {
-  margin-top: 50px;
 }
 
 .inventory-choice {
@@ -45,8 +27,4 @@
 
 #starting-equipment {
   display: none;
-}
-
-#navbar-register {
-  padding-right: 10px;
 }

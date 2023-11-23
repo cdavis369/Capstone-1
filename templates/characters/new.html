@@ -1,23 +1,36 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-md-center">
-  <div class="col col-sm-6 col-md-6 col-lg-6 forefront float-center top-col">
-    <form method="POST" id="new_character_form">
-      {{ form.hidden_tag() }}
-    
-      {% for field in form if field.widget.input_type != 'hidden' %}
-        {% for error in field.errors %}
-          <span class="text-danger">{{ error }}</span>
+<div class="container mt-5">
+  <div class="row justify-content-md-center text-center">
+    <div class="col-6 forefront pb-3">
+      {% if g.character %}
+      <h4>{{g.character.name}} {% if g.character.race_completed %}{{g.character.race.capitalize()}}{% endif %} {% if g.character.character_class_completed %}{{g.character.character_class.capitalize()}}{% endif %}</h4>
+      {% else %}
+      <h4>{{g.user.username}}</h4>
+      {% endif %}
+      <form method="POST" id="new_character_form">
+        {{ form.hidden_tag() }}
+      
+        {% for field in form if field.widget.input_type != 'hidden' %}
+          {% for error in field.errors %}
+            <span class="text-danger">{{ error }}</span>
+          {% endfor %}
+          <label>{{ field.label.text }}</label>
+          {{ field(placeholder=field.label.text, class="form-control") }}
         {% endfor %}
-        <label>{{ field.label.text }}</label>
-        {{ field(placeholder=field.label.text, class="form-control") }}
-      {% endfor %}
-      <div class="row justify-content-md-center buttons">
-        <a href="/new-character" class="btn btn-secondary btn-lg">back</a>
-        <button class="btn btn-success btn-lg col">next</button>
-      </div>
-    </form>
+        <div class="row justify-content-md-center mt-3">
+          <div class="col">
+            <a href="/" class="btn btn-lg btn-secondary btn-block">back</a>
+          </div>
+          <div class="col-9">
+            <button class="btn btn-lg btn-success btn-block">next</button>
+          </div>
+          
+        </div>
+      </form>
+    </div>
   </div>
 </div>
+
 {% endblock %}

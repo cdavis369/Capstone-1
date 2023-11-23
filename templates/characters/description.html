@@ -1,283 +1,363 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row justify-content-md-center">
-  <div class="col forefront col-sm-6 col-md-6 col-lg-6">
-    <form method="POST" id="new_character_form">
-      <div class="row justify-content-start">
-        <h5>Character Name: {{name}}</h5>
-      </div>
-      <div class="row justify-content-md-center">
-        <p><b>Languages</b> ({{char_data['race']['name']}})</p>
-      </div>
-      <div class="row justify-content-start">
-        <p id="language-desc">
-          {{char_data['race']['language_desc']}}
-        </p>
-      </div>
-      <div class="row justify-content-md-center">
-        {% if char_data['race']['language_options'] %}
-        {% for i in range(char_data['race']['language_options']['choose']) %}
-        <select class="form-select languages" id="race-language-{{i}}" name="race-language-{{i}}">
-          <option selected>-Choose a language-</option>
-          {% for j in range(char_data['race']['language_options']['from']['options']|length) %}
-          <option value="{{char_data['race']['language_options']['from']['options'][j]['item']['name']}}">
-            {{char_data['race']['language_options']['from']['options'][j]['item']['name']}}
-          </option>
+<div class="container forefront mt-5 p-3">
+  <div class="row justify-content-md-center">
+    <div class="col-10">
+      <form method="POST" id="new_character_form">
+        <div class="row justify-content-center text-center">
+          <h4 class="col-4">{{g.character.name}} {{g.character.race.capitalize()}} {{g.character.character_class.capitalize()}}</h4>
+        </div>
+        <div class="row justify-content-md-center">
+          <p><b>Languages</b> ({{char_data['race']['name']}})</p>
+        </div>
+        <div class="row justify-content-start">
+          <p id="language-desc">
+            {{char_data['race']['language_desc']}}
+          </p>
+        </div>
+        <div class="row justify-content-md-center">
+          {% if char_data['race']['language_options'] %}
+          {% for i in range(char_data['race']['language_options']['choose']) %}
+          <select class="form-select languages" id="race-language-{{i}}" name="race-language-{{i}}">
+            <option selected>-Choose a language-</option>
+            {% for j in range(char_data['race']['language_options']['from']['options']|length) %}
+            <option value="{{char_data['race']['language_options']['from']['options'][j]['item']['name']}}">
+              {{char_data['race']['language_options']['from']['options'][j]['item']['name']}}
+            </option>
+            {% endfor %}
+          </select>
           {% endfor %}
-        </select>
-        {% endfor %}
-        {% endif %}
-      </div>
-      <div class="row justify-content-md-center">
-        <p><b>Background</b> ({{char_data['background']['name']}})</p>
-      </div>
-      <div class="row justify-content-start">
-        <p>{{char_data['background_info']}}</p>
-      </div>
-      <div class="row justify-content-start">
-        <p>
-          <b>Skill Proficiencies</b>:
-          {% for i in range(char_data['background']['starting_proficiencies']|length) %}
+          {% endif %}
+        </div>
+        <div class="row justify-content-md-center mt-2">
+          <p><b>Background</b> ({{char_data['background']['name']}})</p>
+        </div>
+        <div class="row justify-content-start">
+          <p>{{char_data['background_info']}}</p>
+        </div>
+        <div class="row justify-content-start">
+          <p>
+            <b>Background Starting Proficiencies</b>: 
+            {% for i in range(char_data['background']['starting_proficiencies']|length) %}
             {{char_data['background']['starting_proficiencies'][i]['name'][7:]}}
-            {% if i+1 in range(char_data['background']['starting_proficiencies']|length) %}-{% endif %}
-          {% endfor %}
-        </p>
-      </div>
-      {% if char_data['background']['language_options']%}
-      <div class="row justify-content-md-center">
-        <p><b>Languages</b> (background)</p>
-      </div>
-      <div class="row justify-content-md-center">
-        {% for i in range(char_data['background']['language_options']['choose'])%}
-        <select class="form-select  languages" id="background-language-{{i}}" name="background-language-{{i}}">
-          <option selected>-Choose a language-</option>
-          {% for j in range(char_data['languages']['count']) %}
-          <option value="{{char_data['languages']['results'][j]['name']}}">
-            {{char_data['languages']['results'][j]['name']}}
-          </option>
-          {% endfor %}
-        </select>
-        {% endfor %}
-      </div>
-      {% endif %}
-      <div class="row justify-content-start">
-        <p id="background-feature-name">
-          <b>{{char_data['background']['feature']['name']}}</b> (Background Feature)
-        </p>
-      </div>
-      <div class="row justify-content-start">
-        {{char_data['background']['feature']['desc'][0]}}
-      </div>
-      <div class="row justify-content-md-center">
-        <b>Suggested Characteristics</b>
-      </div>
-      <div class="row justify-content-start">
-        <table class="table" id="personality-traits-table">
-          <thead>
-            <tr>
-              <th scope="col">d8</th>
-              <th scope="col">Personality Traits (choose {{char_data['background']['personality_traits']['choose']}})</th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for i in range(char_data['background']['personality_traits']['from']['options']|length)%}
-            <tr>
-              <td>{{i+1}}</td>
-              <td id="{{i}}-personality-traits">
-                {{char_data['background']['personality_traits']['from']['options'][i]['string']}}
-              </td>
-              <td>
-                <button class="btn btn-info btn-add-characteristic" id="btn-{{i}}-personality-traits">
-                  Add
-                </button>
-              </td>
-            </tr>
+            {% if i+1 in range(char_data['background']['starting_proficiencies']|length) %}- {% endif %}
             {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      <div class="row justify-content-start">
-        <table class="table" id="ideals-table">
-          <thead>
-            <tr>
-              <th scope="col">d6</th>
-              <th scope="col">Ideals (choose {{char_data['background']['ideals']['choose']}})</th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for i in range(char_data['background']['ideals']['from']['options']|length)%}
-            <tr>
-              <td>{{i+1}}</td>
-              <td id="{{i}}-ideals">
-                {{char_data['background']['ideals']['from']['options'][i]['desc']}}
-              </td>
-              <td>
-                <button class="btn btn-info btn-add-characteristic" id="btn-{{i}}-ideals">
-                  Add
-                </button>
-              </td>
-            </tr>
+          </p>
+        </div>
+        <div class="row justify-content-start mt-2">
+          <p id="background-feature-name">
+            <b>Background Feature</b>: {{char_data['background']['feature']['name']}}
+          </p>
+        </div>
+        <div class="row justify-content-start">
+          {{char_data['background']['feature']['desc'][0]}}
+        </div>
+        {% if char_data['background']['language_options']%}
+        <div class="row justify-content-md-center mt-2">
+          <p><b>Background Languages</b></p>
+        </div>
+        <div class="row justify-content-md-center">
+          {% for i in range(char_data['background']['language_options']['choose'])%}
+          <select class="form-select  languages" id="background-language-{{i}}" name="background-language-{{i}}">
+            <option selected>-Choose a language-</option>
+            {% for j in range(char_data['languages']['count']) %}
+            <option value="{{char_data['languages']['results'][j]['name']}}">
+              {{char_data['languages']['results'][j]['name']}}
+            </option>
             {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      <div class="row justify-content-start">
-        <table class="table" id="bonds-table">
-          <thead>
-            <tr>
-              <th scope="col">d6</th>
-              <th scope="col">Bonds (choose {{char_data['background']['bonds']['choose']}})</th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for i in range(char_data['background']['bonds']['from']['options']|length)%}
-            <tr>
-              <td>{{i+1}}</td>
-              <td id="{{i}}-bonds">{{char_data['background']['bonds']['from']['options'][i]['string']}}</td>
-              <td><button class="btn btn-info btn-add-characteristic" id="btn-{{i}}-bonds">Add</button></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      <div class="row justify-content-start">
-        <table class="table" id="flaws-table">
-          <thead>
-            <tr>
-              <th scope="col">d6</th>
-              <th scope="col">Flaws (choose {{char_data['background']['flaws']['choose']}})</th>
-              <th scope="col"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for i in range(char_data['background']['flaws']['from']['options']|length)%}
-            <tr>
-              <td>{{i+1}}</td>
-              <td id="{{i}}-flaws">{{char_data['background']['flaws']['from']['options'][i]['string']}}</td>
-              <td><button class="btn btn-info btn-add-characteristic" id="btn-{{i}}-flaws">Add</button></td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      <div class="row justify-content-md-center">
-        <b>Character Details</b>
-      </div>
-      <div class="row justify-content-md-center">
-        <select class="form-select" id="char-alignment" name="char-alignment">
-          <option selected>-Choose alignment-</option>
-          {% for i in range(char_data['alignments']['count']) %}
-          <option value="{{char_data['alignments']['results'][i]['index']}}">
-            {{char_data['alignments']['results'][i]['name']}}
-          </option>
+          </select>
           {% endfor %}
-        </select>
-      </div>
-      <div class="row justify-content-start">
-        <p id='alignment-desc'><p>
-      </div>
-      <div class="form-group">
-        <label for="char-faith"><b>Faith</b></label>
-        <input type="text" class="form-control" id="char-faith">
-      </div>
-      <div class="row justify-content-md-center">
-        <select class="form-select" id="char-lifestyle" name="char-lifestyle">
-          <option selected>-Choose lifestyle-</option>
-          {% for i in range(lifestyle|length) %}
-          <option value="{{lifestyle[i]['name']}}">
-            {{lifestyle[i]['name']}}
-          </option>
-          {% endfor %}
-        </select>
-      </div>
-      <div class="row justify-content-start">
-        <p id='lifestyle-desc'><p>
-      </div>
-      <div class="row justify-content-md-center">
-        <b>Physical Characteristics</b>
-      </div>
-      <div class="form-group row">
-        <label for="char-hair"><b>Hair</b></label>
-        <input type="text" class="form-control physical-details" id="char-hair">
-      </div>
-      <div class="form-group row">
-        <label for="char-skin"><b>Skin</b></label>
-        <input type="text" class="form-control physical-details" id="char-skin">
-      </div>
-      <div class="form-group row">
-        <label for="char-eyes"><b>Eyes</b></label>
-        <input type="text" class="form-control physical-details" id="char-eyes">
-      </div>
-      <div class="form-group row">
-        <label for="char-height"><b>Height</b></label>
-        <input type="text" class="form-control physical-details" id="char-height">
-      </div>
-      <div class="form-group row">
-        <label for="char-weight"><p><b>Weight</b> (lbs)</p></label>
-        <input type="text" class="form-control physical-details" id="char-weight">
-      </div>
-      <div class="form-group row">
-        <label for="char-age"><p><b>Age</b>  (years)</p></label>
-        <input type="text" class="form-control physical-details" id="char-age">
-      </div>
-      <div class="form-group row">
-        <label for="char-gender"><b>Gender</b></label>
-        <input type="text" class="form-control physical-details" id="char-gender">
-      </div>
-      <div class="row justify-content-md-center">
-        <b>Personal Characteristics</b>
-      </div>
-      <div class="form-group">
-        <label for="personality-traits-text"><b>PERSONALITY TRAITS</b></label>
-        <textarea class="form-control char-traits" id="personality-traits-text" rows="3"></textarea>
-      </div>
-      <div class="form-group">
-        <label for="ideals-text"><b>IDEALS</b></label>
-        <textarea class="form-control char-traits" id="ideals-text" rows="3"></textarea>
-      </div>
-      <div class="form-group">
-        <label for="bonds-text"><b>BONDS</b></label>
-        <textarea class="form-control char-traits" id="bonds-text" rows="3"></textarea>
-      </div>
-      <div class="form-group">
-        <label for="flaws-text"><b>FLAWS</b></label>
-        <textarea class="form-control char-traits" id="flaws-text" rows="3"></textarea>
-      </div>
-      <div class="row justify-content-md-center">
-        <b>Notes</b>
-      </div>
-      <div class="form-group">
-        <label for="organizations-text"><b>ORGANIZATIONS</b></label>
-        <textarea class="form-control char-traits" id="organizations-text" rows="2"></textarea>
-      </div>
-      <div class="form-group">
-        <label for="allies-text"><b>ALLIES</b></label>
-        <textarea class="form-control char-traits" id="allies-text" rows="2"></textarea>
-      </div>
-      <div class="form-group">
-        <label for="enemies-text"><b>ENEMIES</b></label>
-        <textarea class="form-control char-traits" id="enemies-text" rows="2"></textarea>
-      </div>
-      <div class="form-group">
-        <label for="backstory-text"><b>BACKSTORY</b></label>
-        <textarea class="form-control char-traits" id="backstory-text" rows="2"></textarea>
-      </div>
-      <div class="form-group">
-        <label for="other-text"><b>OTHER</b></label>
-        <textarea class="form-control char-traits" id="other-text" rows="2"></textarea>
-      </div>
-      <div class="row justify-content-md-center">
-        <a href="/characters/new/ability-scores" class="btn btn-secondary col col-sm-2 col-md-2 col-lg-2">back</a>
-        <button class="btn btn-success col col-sm-2 col-md-2 col-lg-2" id="btn-submit-details">next</button>
-      </div>
-    </form>
-  </div>
+        </div>
+        {% endif %}
+        <div class="row justify-content-md-center mt-2">
+          <b>Moral Alignment</b>
+        </div>
+        <div class="row justify-content-md-center mt-2">
+          <select class="form-select" id="char-alignment" name="char-alignment">
+            <option selected>-Choose alignment-</option>
+            {% for i in range(char_data['alignments']['count']) %}
+            <option value="{{char_data['alignments']['results'][i]['index']}}">
+              {{char_data['alignments']['results'][i]['name']}}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="row justify-content-start mt-2">
+          <p id='alignment-desc'><p>
+        </div>
+        <div class="row justify-content-center">
+          <b>Daily Lifestyle</b>
+        </div>
+        <div class="row justify-content-md-center mt-2">
+          <select class="form-select" id="char-lifestyle" name="char-lifestyle">
+            <option selected>-Choose lifestyle-</option>
+            {% for i in range(lifestyle|length) %}
+            <option value="{{lifestyle[i]['name']}}">
+              {{lifestyle[i]['name']}}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="row justify-content-start mt-2">
+          <p id='lifestyle-desc'><p>
+        </div>
+        <div class="row justify-content-md-center mt-2">
+          <b>Suggested Characteristics</b>
+        </div>
+        <div class="row justify-content-start">
+          <table class="table" id="personality-traits-table">
+            <thead>
+              <tr>
+                <th scope="col">d8</th>
+                <th scope="col">Personality Traits (choose {{char_data['background']['personality_traits']['choose']}})</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for i in range(char_data['background']['personality_traits']['from']['options']|length)%}
+              <tr>
+                <td>{{i+1}}</td>
+                <td id="{{i}}-personality-traits">
+                  {{char_data['background']['personality_traits']['from']['options'][i]['string']}}
+                </td>
+                <td>
+                  <button class="btn btn-info btn-add-characteristic" id="btn-{{i}}-personality-traits">
+                    Add
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="row justify-content-start">
+          <table class="table" id="ideals-table">
+            <thead>
+              <tr>
+                <th scope="col">d6</th>
+                <th scope="col">Ideals (choose {{char_data['background']['ideals']['choose']}})</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for i in range(char_data['background']['ideals']['from']['options']|length)%}
+              <tr>
+                <td>{{i+1}}</td>
+                <td id="{{i}}-ideals">
+                  {{char_data['background']['ideals']['from']['options'][i]['desc']}}
+                </td>
+                <td>
+                  <button class="btn btn-info btn-add-characteristic" id="btn-{{i}}-ideals">
+                    Add
+                  </button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="row justify-content-start">
+          <table class="table" id="bonds-table">
+            <thead>
+              <tr>
+                <th scope="col">d6</th>
+                <th scope="col">Bonds (choose {{char_data['background']['bonds']['choose']}})</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for i in range(char_data['background']['bonds']['from']['options']|length)%}
+              <tr>
+                <td>{{i+1}}</td>
+                <td id="{{i}}-bonds">{{char_data['background']['bonds']['from']['options'][i]['string']}}</td>
+                <td><button class="btn btn-info btn-add-characteristic" id="btn-{{i}}-bonds">Add</button></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="row justify-content-start">
+          <table class="table" id="flaws-table">
+            <thead>
+              <tr>
+                <th scope="col">d6</th>
+                <th scope="col">Flaws (choose {{char_data['background']['flaws']['choose']}})</th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for i in range(char_data['background']['flaws']['from']['options']|length)%}
+              <tr>
+                <td>{{i+1}}</td>
+                <td id="{{i}}-flaws">{{char_data['background']['flaws']['from']['options'][i]['string']}}</td>
+                <td><button class="btn btn-info btn-add-characteristic" id="btn-{{i}}-flaws">Add</button></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
 
+
+        <div class="form-group row">
+          <label for="char-faith"><b>Faith</b></label>
+          <input type="text" class="form-control" id="char-faith"
+          {% if g.character.description_completed %}
+          value="{{g.character.faith}}"
+          {% endif %}
+          >
+        </div>
+
+        <div class="row justify-content-md-center">
+          <b>Physical Characteristics</b>
+        </div>
+        <div class="form-group row">
+          <label for="char-hair"><b>Hair</b></label>
+          <input type="text" class="form-control physical-details" id="char-hair"
+          {% if g.character.description_completed %}
+          value="{{physicals_traits.hair}}"
+          {% endif %}
+          >
+        </div>
+        <div class="form-group row">
+          <label for="char-skin"><b>Skin</b></label>
+          <input type="text" class="form-control physical-details" id="char-skin"
+          {% if g.character.description_completed %}
+          value="{{physicals_traits.skin}}"
+          {% endif %}
+          >
+        </div>
+        <div class="form-group row">
+          <label for="char-eyes"><b>Eyes</b></label>
+          <input type="text" class="form-control physical-details" id="char-eyes"
+          {% if g.character.description_completed %}
+          value="{{physicals_traits.eyes}}"
+          {% endif %}
+          >
+        </div>
+        <div class="form-group row">
+          <label for="char-height"><b>Height</b></label>
+          <input type="text" class="form-control physical-details" id="char-height"
+          {% if g.character.description_completed %}
+          value="{{physicals_traits.height}}"
+          {% endif %}
+          >
+        </div>
+        <div class="form-group row">
+          <label for="char-weight"><p><b>Weight</b> (lbs)</p></label>
+          <input type="text" class="form-control physical-details" id="char-weight"
+          {% if g.character.description_completed %}
+          value="{{physicals_traits.weight}}"
+          {% endif %}
+          >
+        </div>
+        <div class="form-group row">
+          <label for="char-age"><p><b>Age</b>  (years)</p></label>
+          <input type="text" class="form-control physical-details" id="char-age"
+          {% if g.character.description_completed %}
+          value="{{physicals_traits.age}}"
+          {% endif %}
+          >
+        </div>
+        <div class="form-group row">
+          <label for="char-gender"><b>Gender</b></label>
+          <input type="text" class="form-control physical-details" id="char-gender"
+          {% if g.character.description_completed %}
+          value="{{physicals_traits.gender}}"
+          {% endif %}
+          >
+        </div>
+        <div class="row justify-content-md-center">
+          <b>Personal Characteristics</b>
+        </div>
+        <div class="form-group row">
+          <label for="personality-traits-text"><b>PERSONALITY TRAITS</b></label>
+          <textarea class="form-control char-traits" id="personality-traits-text" rows="3">
+            {% if g.character.description_completed %}
+            {{personality_trait.trait.strip()}}
+            {% endif %}
+          </textarea>
+        </div>
+        <div class="form-group row">
+          <label for="ideals-text"><b>IDEALS</b></label>
+          <textarea class="form-control char-traits" id="ideals-text" rows="3">
+            {% if g.character.description_completed %}
+            {{ideals.trait.strip()}}
+            {% endif %}
+          </textarea>
+        </div>
+        <div class="form-group row">
+          <label for="bonds-text"><b>BONDS</b></label>
+          <textarea class="form-control char-traits" id="bonds-text" rows="3">
+            {% if g.character.description_completed %}
+            {{bonds.trait.strip()}}
+            {% endif %}
+          </textarea>
+        </div>
+        <div class="form-group row">
+          <label for="flaws-text"><b>FLAWS</b></label>
+          <textarea class="form-control char-traits" id="flaws-text" rows="3">
+            {% if g.character.description_completed %}
+            {{flaws.trait.strip()}}
+            {% endif %}
+          </textarea>
+        </div>
+        <div class="row justify-content-md-center">
+          <b>Notes</b>
+        </div>
+        <div class="form-group row">
+          <label for="organizations-text"><b>ORGANIZATIONS</b></label>
+          <textarea class="form-control char-traits" id="organizations-text" rows="2">
+            {% if g.character.description_completed %}
+            {{notes.organizations}}
+            {% endif %}
+          </textarea>
+        </div>
+        <div class="form-group row">
+          <label for="allies-text"><b>ALLIES</b></label>
+          <textarea class="form-control char-traits" id="allies-text" rows="2">
+            {% if g.character.description_completed %}
+            {{notes.allies}}
+            {% endif %}
+          </textarea>
+        </div>
+        <div class="form-group row">
+          <label for="enemies-text"><b>ENEMIES</b></label>
+          <textarea class="form-control char-traits" id="enemies-text" rows="2">
+            {% if g.character.description_completed %}
+            {{notes.enemies}}
+            {% endif %}
+          </textarea>
+        </div>
+        <div class="form-group row">
+          <label for="backstory-text"><b>BACKSTORY</b></label>
+          <textarea class="form-control char-traits" id="backstory-text" rows="2">
+            {% if g.character.description_completed %}
+            {{notes.backstory}}
+            {% endif %}
+          </textarea>
+        </div>
+        <div class="form-group row">
+          <label for="other-text"><b>OTHER</b></label>
+          <textarea class="form-control char-traits" id="other-text" rows="2">
+            {% if g.character.description_completed %}
+            {{notes.other}}
+            {% endif %}
+          </textarea>
+        </div>
+        <div class="row justify-content-md-center">
+          <div class="col">
+            <a href="/characters/new/ability-scores" class="btn btn-secondary btn-lg btn-block">back</a>
+          </div>
+          <div class="col-9">
+            <button class="btn btn-success btn-lg btn-block" id="btn-submit-details">next</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
+
 {% endblock %}
 
 
