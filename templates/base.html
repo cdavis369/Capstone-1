@@ -17,11 +17,11 @@
             <span>D&D Character Creator</span>
           </a>
         </div>
-        <ul class="nav navbar-nav navbar-right">
+        <div class="nav navbar-nav navbar-right">
           {% if g.user %}
-          <li id="navbar-logout"><a href="/logout">Log out</a></li>
+          <a href="/logout">Log out</a>
           {% endif %}
-        </ul>
+        </div>
       </div>
     </nav>
     {% if g.character %}
