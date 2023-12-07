@@ -18,13 +18,8 @@
           </a>
         </div>
           {% if g.user %}
-          <a href="/logout" class="btn btn-sm btn-outline-primary">Log out</a>
+          <a href="/logout" class="btn btn-sm btn-outline-primary float-end">Log out</a>
           {% endif %}
-        <div class="nav navbar-nav navbar-right">
-          {% if g.user %}
-          <a href="/logout" class="btn btn-sm btn-outline-primary">Log out</a>
-          {% endif %}
-        </div>
       </div>
     </nav>
     {% if g.character %}
